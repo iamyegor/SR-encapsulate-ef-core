@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace EFCoreEncapsulation.Api;
 
 public class Program
@@ -10,12 +8,10 @@ public class Program
 
         // Add services to the container
 
-        builder.Services.AddDbContext<SchoolContext>(options =>
-            options
-                .UseSqlServer(builder.Configuration["ConnectionString"])
-                .UseLoggerFactory(CreateLoggerFactory())
-                .EnableSensitiveDataLogging()
-        );
+        builder.Services.AddScoped(_ => new SchoolContext(
+            builder.Configuration.GetConnectionString("ConnectionString"),
+            builder.Environment.IsDevelopment()
+        ));
 
         builder.Services.AddControllers();
 
@@ -26,18 +22,5 @@ public class Program
         app.MapControllers();
 
         app.Run();
-    }
-
-    private static ILoggerFactory CreateLoggerFactory()
-    {
-        return LoggerFactory.Create(builder =>
-            builder
-                .AddFilter(
-                    (category, level) =>
-                        category == DbLoggerCategory.Database.Command.Name
-                        && level == LogLevel.Information
-                )
-                .AddConsole()
-        );
     }
 }
