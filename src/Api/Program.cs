@@ -9,9 +9,13 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container
-        
-        builder.Services.AddDbContext<SchoolContext>(
-            options => options.UseSqlServer(builder.Configuration["ConnectionString"]));
+
+        builder.Services.AddDbContext<SchoolContext>(options =>
+            options
+                .UseSqlServer(builder.Configuration["ConnectionString"])
+                .UseLoggerFactory(CreateLoggerFactory())
+                .EnableSensitiveDataLogging()
+        );
 
         builder.Services.AddControllers();
 
@@ -22,5 +26,18 @@ public class Program
         app.MapControllers();
 
         app.Run();
+    }
+
+    private static ILoggerFactory CreateLoggerFactory()
+    {
+        return LoggerFactory.Create(builder =>
+            builder
+                .AddFilter(
+                    (category, level) =>
+                        category == DbLoggerCategory.Database.Command.Name
+                        && level == LogLevel.Information
+                )
+                .AddConsole()
+        );
     }
 }

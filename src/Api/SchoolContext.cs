@@ -9,9 +9,27 @@ public sealed class SchoolContext : DbContext
     public DbSet<Enrollment> Enrollments { get; set; }
 
     public SchoolContext(DbContextOptions<SchoolContext> options)
-        : base(options)
+        : base(options) { }
+
+    // Use one of these loggers basedo on the current environment
+    private static ILoggerFactory CreateLoggerFactory()
     {
+        return LoggerFactory.Create(builder =>
+            builder
+                .AddFilter(
+                    (category, level) =>
+                        category == DbLoggerCategory.Database.Command.Name
+                        && level == LogLevel.Information
+                )
+                .AddConsole()
+        );
     }
+    
+    private static ILoggerFactory CreateEmptyLoggerFactory()
+    {
+        return LoggerFactory.Create(builder => builder.AddFilter((_, _) => false));
+    }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
