@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace EFCoreEncapsulation.Api;
 
 public class StudentRepository
@@ -13,11 +11,16 @@ public class StudentRepository
 
     public Student GetById(long id)
     {
-        return _context
-            .Students.Include(x => x.Enrollments)
-            .ThenInclude(x => x.Course)
-            .Include(x => x.SportsEnrollments)
-            .ThenInclude(x => x.Sports)
-            .SingleOrDefault(x => x.Id == id);
+        Student student = _context.Students.Find(id);
+
+        if (student == null)
+        {
+            return null;
+        }
+
+        _context.Entry(student).Collection(x => x.Enrollments).Load();
+        _context.Entry(student).Collection(x => x.SportsEnrollments).Load();
+
+        return student;
     }
 }

@@ -76,6 +76,7 @@ public sealed class SchoolContext : DbContext
             x.HasOne(p => p.Student).WithMany(p => p.Enrollments);
             x.HasOne(p => p.Course).WithMany();
             x.Property(p => p.Grade);
+            x.Navigation(e => e.Course).AutoInclude();
         });
 
         modelBuilder.Entity<Sports>(x =>
@@ -92,6 +93,7 @@ public sealed class SchoolContext : DbContext
             x.HasOne(p => p.Student).WithMany(p => p.SportsEnrollments);
             x.HasOne(p => p.Sports).WithMany();
             x.Property(p => p.Grade);
+            x.Navigation(s => s.Sports).AutoInclude();
         });
     }
 }
